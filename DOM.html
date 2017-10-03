@@ -1,0 +1,132 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="windows-1251">
+<style type="text/css">
+
+body {
+background-color:gray;
+position: relative;
+}
+
+.popup-window {
+	position: absolute;
+	border: 2px solid green;
+	background-color: white;
+	padding: 3px;
+	visibility: hidden;
+}
+
+#for_login {
+	color: yellow;
+	font-weight: bold;
+	text-decoration: underline;
+	cursor: pointer;
+	width: 150px;
+}
+
+</style>
+<title>
+тест на DOM
+</title>
+</head>
+<body>
+
+<div id="pop">
+<input type="email" class="pop" data-popup="<div>Этот адрес будет использоваться для восстановления пароля.</div>" data-popup-side="right"><br>
+<div id="for_login" class="pop" tabindex="1" data-popup="#login" data-popup-side="bottom">Войти на сайт</div><hr>
+<input type="text" class="pop" class="test" data-popup="<div>Введите Ваше имя.</div>" data-popup-side="right"><br>
+<a href="">Назад</a>
+</div>
+
+<script type="text/x-template" id="login">
+<div class="login">
+<p>
+<label for="user">Имя пользователя:</label><br>
+<input type="text" id="user">
+</p>
+<p>
+<label for="pass">Пароль:</label><br>
+<input type="password" id="pass">
+</p>
+<input type="submit" value="Войти">
+</div>
+</script>
+<script>
+
+var popup = document.createElement('div');
+
+var pop = document.getElementById('pop')
+var elems = pop.children
+
+for (var i=0; i < elems.length; i++) {
+	elems[i].addEventListener("focus", on_focus, true);
+	elems[i].addEventListener("blur", on_blur, true);
+};
+
+function on_focus () {
+	
+	document.removeEventListener("click", on_click, false);
+	
+	if (this.classList.contains('pop')) {
+		var data = this.getAttribute('data-popup');
+		
+		if (data[0] == '#') {
+			var id = data.substring(1);
+			data = document.getElementById(id).innerHTML;
+		};
+		
+		var side = this.getAttribute('data-popup-side');
+		popup.innerHTML = data;
+		popup.className = 'popup-window';
+		
+		var left = this.getBoundingClientRect().left;
+		var right = this.getBoundingClientRect().right;
+		var top = this.getBoundingClientRect().top;
+		var bottom = this.getBoundingClientRect().bottom;
+		
+		this.parentElement.insertBefore(popup, this);
+		
+		switch (side) {
+			case 'left':
+				popup.style.left = Math.round(left - popup.offsetWidth - 10) + 'px';
+				popup.style.top = Math.round(top + popup.offsetHeight - this.offsetHeight) + 'px';
+				console.log(top + ', ' + popup.offsetHeight + ', ' + this.offsetHeight);
+				console.log(popup.style.top);
+				break;
+			case 'right':
+				popup.style.left = Math.round(right + 10) + 'px';
+				popup.style.top = Math.round(top - popup.offsetHeight + this.offsetHeight) + 'px';
+				break;
+			case 'top':
+				popup.style.left = Math.round(left) + 'px';
+				popup.style.top = Math.round(top + popup.offsetHeight + 10) + 'px';
+				break;
+			case 'bottom':
+				popup.style.left = Math.round(left) + 'px';
+				popup.style.top = Math.round(bottom + 10) + 'px';
+				break;
+		};
+		
+		popup.style.visibility = 'visible';
+	}
+};
+
+function on_blur () {
+	if (this.classList.contains('pop')) {
+		document.addEventListener("click", on_click, false);
+}
+};
+
+function on_click (e) {
+	var click_elem = document.elementFromPoint(e.clientX, e.clientY);
+
+	if (popup.contains(click_elem) == false) {
+		document.removeEventListener("click", on_click, false);
+		popup.parentElement.removeChild(popup);
+		popup.style.visibility = 'hidden';
+		};
+};
+</script>
+</body>
+</html>
