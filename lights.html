@@ -134,6 +134,7 @@ xhr.onreadystatechange = function () {
 	if (xhr.status != 200) {alert(xhr.status + ': ' + xhr.statusText);
 		return};
 	button.value = 'Показать';
+	button.disabled = false;
 	var resp = xhr.responseText;
 	
 	switch (resp) {
