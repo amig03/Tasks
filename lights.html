@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style type="text/css">
+
+body {
+	background-color: gray;
+}
+
+#lights {
+	background-color: black;
+	border: 3px solid white;
+	width: 120px;
+	height: 340px;
+	position: relative;
+	float: left;
+	margin: 20px;
+}
+
+.red {
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	background-color: black;
+	border-radius: 50px;
+	width: 100px;
+	height: 100px;
+	box-shadow: inset 0 0 30px 0 white;
+}
+
+.red-lights {
+	position: absolute;
+	left: 10px;
+	top: 10px;
+	background-color: red;
+	border-radius: 50px;
+	width: 100px;
+	height: 100px;
+	box-shadow: inset 0 0 30px 0 white, 0 0 20px 0 red;
+}
+
+.yellow {
+	position: absolute;
+	left: 10px;
+	top: 120px;
+	background-color: black;
+	border-radius: 50px;
+	width: 100px;
+	height: 100px;
+	box-shadow: inset 0 0 30px 0 white;
+}
+
+.yellow-lights {
+	position: absolute;
+	left: 10px;
+	top: 120px;
+	background-color: yellow;
+	border-radius: 50px;
+	width: 100px;
+	height: 100px;
+	box-shadow: inset 0 0 30px 0 white, 0 0 20px 0 yellow;
+}
+
+.green {
+	position: absolute;
+	left: 10px;
+	top: 230px;
+	background-color: black;
+	border-radius: 50px;
+	width: 100px;
+	height: 100px;
+	box-shadow: inset 0 0 30px 0 white;
+}
+
+.green-lights {
+	position: absolute;
+	left: 10px;
+	top: 230px;
+	background-color: green;
+	border-radius: 50px;
+	width: 100px;
+	height: 100px;
+	box-shadow: inset 0 0 30px 0 white, 0 0 20px 0 green;
+}
+
+.error {
+	border-color: red;
+}
+
+#info {
+	color: yellow;
+	width: 300px;
+	height: 30px;
+}
+
+</style>
+<title>
+Светофор
+</title>
+</head>
+<body>
+<div id="lights">
+<div id="red" class="red"></div>
+<div id="yellow" class="yellow"></div>
+<div id="green" class="green"></div>
+</div>
+<div>Программа работы сфетофора с начала каждого часа:<br>
+каждые 0 - 3 мин.: <span class="colors">зеленый</span>;<br>каждые 3 - 4 мин.: <span class="colors">красный</span>;<br>каждые 4 - 7 мин.: <span class="colors">зеленый</span>.</div><hr>
+<form>
+<label for="php">Здесь Вы можете ввести адрес Вашего PHP файла:</label><br>
+<input type="text" id="php" style="width: 400px" value="http://localhost/denwer/timing/get_color_two.php">
+</form><hr>
+<form>
+<label for="time">Введите время в минутах:</label><br>
+<input type="text" id="time"><br>
+<label id="info"></label><br>
+<input type="button" id="button" value="Показать">
+</form>
+<script>
+var input = document.getElementById('time');
+var info = document.getElementById('info');
+var button = document.getElementById('button');
+var red = document.getElementById('red');
+var yellow = document.getElementById('yellow');
+var green = document.getElementById('green');
+var g = 'abc';
+var xhr = new XMLHttpRequest();
+var color_rus;
+var php = document.getElementById('php');
+var colors = document.getElementsByClassName('colors');
+
+xhr.onreadystatechange = function () {
+	if (xhr.readyState != 4) {return;};
+	if (xhr.status != 200) {alert(xhr.status + ': ' + xhr.statusText);
+		return};
+	button.value = 'Показать';
+	var resp = xhr.responseText;
+	
+	switch (resp) {
+		case 'green':
+			color_rus = 'зеленый';
+			green.className = 'green-lights';
+			red.className = 'red';
+			yellow.className = 'yellow';
+			break;
+		case 'yellow':
+			color_rus = 'желтый';
+			green.className = 'green';
+			red.className = 'red';
+			yellow.className = 'yellow-lights';
+			break;
+		case 'red':
+			color_rus = 'красный';
+			green.className = 'green';
+			red.className = 'red-lights';
+			yellow.className = 'yellow';
+			break;
+};
+	
+	info.innerHTML = "Сейчас горит " + color_rus + " свет."
+}
+
+input.onfocus = function () {
+	if (this.className = 'error') {
+		this.className = ''
+		info.innerHTML = ''
+	}
+}
+
+php.onfocus = function () {
+	if (this.className = 'error') {
+		this.className = ''
+		info.innerHTML = ''
+	}
+}
+
+php.onblur = function () {
+	if (this.value.indexOf('/get_color_two.php') != -1) {
+		colors[2].innerHTML = 'зеленый';
+	} else if (this.value.indexOf('/get_color_three.php') != -1) {
+		colors[2].innerHTML = 'желтый';
+	} else {
+		colors[0].innerHTML = '???';
+		colors[1].innerHTML = '???';
+		colors[2].innerHTML = '???';
+	}
+}
+
+button.onclick = function () {
+	var time = input.value;
+	
+	if (isNaN(time)) {
+		input.className = 'error';
+		info.innerHTML = 'Введите число!';
+		input.value = '';
+		return;
+	} else if (time == '') {
+		input.className = 'error';
+		info.innerHTML = 'Вы ничего не ввели!';
+		return;	
+	} else if (time < 0||time > 59) {
+		input.className = 'error';
+		info.innerHTML = 'Введите число в пределах от 0 до 59!';
+		input.value = '';
+		return;
+	} else if (php.value == '') {
+		info.innerHTML = 'Поле адреса PHP файла не может быть пустым!';
+		php.className = 'error';
+		return;
+	}
+	
+	button.value = 'Загрузка...';
+	button.disabled = true;
+	xhr.open('GET', php.value + '?time=' + time, false);
+	xhr.send();
+}
+
+</script>
+</body>
+</html>
